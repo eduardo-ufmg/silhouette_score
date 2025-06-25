@@ -1,7 +1,7 @@
 import numpy as np
 from scipy.spatial.distance import pdist, squareform
 
-def silhouette(Q: np.ndarray, y: np.ndarray, h: float, k: int) -> float:
+def silhouette(Q: np.ndarray, y: np.ndarray, factor_h: float, factor_k: int) -> float:
     """
     Calculates the mean Silhouette Coefficient of all samples.
 
@@ -19,9 +19,10 @@ def silhouette(Q: np.ndarray, y: np.ndarray, h: float, k: int) -> float:
                         is the similarity of sample `i` to class `j`.
         y (np.ndarray): A 1D numpy array of shape (n_samples,) containing the true
                         class labels for each sample.
-        h (float): The bandwidth parameter for the RBF kernel. Used as regularization
-                   to control the smoothness of the similarity space.
-        k (int): The number of nearest neighbors to consider in the sparse RBF kernel.
+        factor_h (float): A scaled factor from the RBF kernel bandwidth parameter.
+                          This is used to adjust the Silhouette Score.
+        factor_k (int): A scaled factor from the number of nearest neighbors used in
+                        the sparse RBF kernel. This is used to adjust the Silhouette Score.
 
     Raises:
         TypeError: If Q or y cannot be converted to numpy arrays.
@@ -94,4 +95,4 @@ def silhouette(Q: np.ndarray, y: np.ndarray, h: float, k: int) -> float:
     s[mask_denom_ne_zero] = (b[mask_denom_ne_zero] - a[mask_denom_ne_zero]) / denominator[mask_denom_ne_zero]
 
     # The final score is the mean over all samples.
-    return float(np.mean(s))
+    return float(np.mean(s)) * factor_h * factor_k
