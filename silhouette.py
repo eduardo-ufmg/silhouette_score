@@ -95,4 +95,4 @@ def silhouette(Q: np.ndarray, y: np.ndarray, factor_h: float, factor_k: int) -> 
     s[mask_denom_ne_zero] = (b[mask_denom_ne_zero] - a[mask_denom_ne_zero]) / denominator[mask_denom_ne_zero]
 
     # The final score is the mean over all samples.
-    return float(np.mean(s)) * factor_k * factor_h
+    return -float(np.mean(s)) / np.exp(-(1 + factor_h + factor_k))
