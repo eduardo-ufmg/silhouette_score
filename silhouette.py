@@ -3,9 +3,9 @@ from scipy.spatial.distance import pdist, squareform
 
 def silhouette(Q: np.ndarray, y: np.ndarray, factor_h: float, factor_k: int) -> float:
     """
-    Calculates the mean Silhouette Coefficient of all samples.
+    Calculates the Silhouette Score of all samples.
 
-    The Silhouette Coefficient is a measure of how similar a sample is to its own
+    The Silhouette Score is a measure of how similar a sample is to its own
     class compared to other classes. The score is bounded between -1 for
     incorrectly clustered samples and +1 for highly dense, well-separated classes.
     Scores around zero indicate overlapping classes.
@@ -94,4 +94,4 @@ def silhouette(Q: np.ndarray, y: np.ndarray, factor_h: float, factor_k: int) -> 
     mask_denom_ne_zero = denominator != 0
     s[mask_denom_ne_zero] = (b[mask_denom_ne_zero] - a[mask_denom_ne_zero]) / denominator[mask_denom_ne_zero]
 
-    return float(np.mean(s))
+    return float(np.mean(s) - np.std(s))
