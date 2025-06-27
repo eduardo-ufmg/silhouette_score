@@ -90,8 +90,8 @@ def silhouette(Q: np.ndarray, y: np.ndarray, factor_h: float, factor_k: int) -> 
     # s(i) = (b(i) - a(i)) / max(a(i), b(i))
     denominator = np.maximum(a, b)
     s = np.zeros_like(denominator) # Initialize scores to 0
-    # Use a mask to avoid division by zero. If the denominator is 0, score is 0.
+    # Use a mask to avoid division by zero.
     mask_denom_ne_zero = denominator != 0
     s[mask_denom_ne_zero] = (b[mask_denom_ne_zero] - a[mask_denom_ne_zero]) / denominator[mask_denom_ne_zero]
 
-    return float(np.mean(s) / np.std(s)) * factor_h * factor_k if np.std(s) != 0 else 0.0
+    return float(np.mean(s) - np.std(s)) * factor_h * factor_k
