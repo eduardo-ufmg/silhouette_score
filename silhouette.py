@@ -1,6 +1,7 @@
 import numpy as np
 from scipy.spatial.distance import pdist, squareform
 
+
 def silhouette(Q: np.ndarray, y: np.ndarray, factor_h: float, factor_k: int) -> float:
     """
     Calculates the Silhouette Score of all samples.
@@ -59,7 +60,7 @@ def silhouette(Q: np.ndarray, y: np.ndarray, factor_h: float, factor_k: int) -> 
     # For performance, compute all pairwise distances at once.
     # This is much faster than Python loops but uses O(n_samples^2) memory.
     try:
-        pairwise_dists = squareform(pdist(Q, metric='euclidean'))
+        pairwise_dists = squareform(pdist(Q, metric="euclidean"))
     except MemoryError:
         raise MemoryError(
             f"Failed to create a {n_samples}x{n_samples} pairwise distance matrix. "
@@ -73,7 +74,7 @@ def silhouette(Q: np.ndarray, y: np.ndarray, factor_h: float, factor_k: int) -> 
     # 1. Calculate mean inter-cluster distances for all samples to all classes
     mean_inter_cluster_dists = np.zeros((n_samples, n_classes), dtype=np.float64)
     for c_idx, label in enumerate(unique_labels):
-        mask_c = (y == label)
+        mask_c = y == label
         # Mean distance from all samples to the samples in class c
         mean_inter_cluster_dists[:, c_idx] = np.mean(pairwise_dists[:, mask_c], axis=1)
 
@@ -89,9 +90,11 @@ def silhouette(Q: np.ndarray, y: np.ndarray, factor_h: float, factor_k: int) -> 
     # 3. Calculate silhouette scores for each sample
     # s(i) = (b(i) - a(i)) / max(a(i), b(i))
     denominator = np.maximum(a, b)
-    s = np.zeros_like(denominator) # Initialize scores to 0
+    s = np.zeros_like(denominator)  # Initialize scores to 0
     # Use a mask to avoid division by zero.
     mask_denom_ne_zero = denominator != 0
-    s[mask_denom_ne_zero] = (b[mask_denom_ne_zero] - a[mask_denom_ne_zero]) / denominator[mask_denom_ne_zero]
+    s[mask_denom_ne_zero] = (
+        b[mask_denom_ne_zero] - a[mask_denom_ne_zero]
+    ) / denominator[mask_denom_ne_zero]
 
     return float(np.mean(s) - np.std(s)) * factor_h * factor_k
