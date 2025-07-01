@@ -97,4 +97,4 @@ def silhouette(Q: np.ndarray, y: np.ndarray, factor_h: float, factor_k: int) -> 
         b[mask_denom_ne_zero] - a[mask_denom_ne_zero]
     ) / denominator[mask_denom_ne_zero]
 
-    return float(np.mean(s) - np.std(s)) * factor_h * factor_k
+    return float(np.mean(s) - np.std(s))
