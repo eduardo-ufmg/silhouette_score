@@ -97,4 +97,9 @@ def silhouette(Q: np.ndarray, y: np.ndarray, factor_h: float, factor_k: int) -> 
         b[mask_denom_ne_zero] - a[mask_denom_ne_zero]
     ) / denominator[mask_denom_ne_zero]
 
-    return float(np.mean(s) - np.std(s))
+    # Not perfect, but good enough to estimate the bandwidth and don't saturate the 
+    # number of nearest neighbors.
+    mean_s = np.mean(s)
+    std_s = np.std(s)
+    penalty = 1 - (2 * factor_k * (1 - factor_k))
+    return -float((mean_s - 0.5) ** 2 + std_s) * penalty
