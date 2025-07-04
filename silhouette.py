@@ -1,8 +1,10 @@
 import numpy as np
 from scipy.spatial.distance import pdist, squareform
 
+from paramhandling.paramhandler import parcheck, get_nparrays, get_classes
 
-def silhouette(Q: np.ndarray, y: np.ndarray, factor_h: float, factor_k: int) -> float:
+def silhouette(Q: np.ndarray, y: np.ndarray, factor_h: float, factor_k: float, classes: np.ndarray | None = None
+               ) -> float:
     """
     Calculates the Silhouette Score of all samples.
 
@@ -16,14 +18,18 @@ def silhouette(Q: np.ndarray, y: np.ndarray, factor_h: float, factor_k: int) -> 
     these points.
 
     Parameters:
-        Q (np.ndarray): A 2D numpy array of shape (n_samples, n_classes). Q[i, j]
-                        is the similarity of sample `i` to class `j`.
-        y (np.ndarray): A 1D numpy array of shape (n_samples,) containing the true
-                        class labels for each sample.
+        Q (np.ndarray): An (M, N) similarity matrix where M is the number of samples
+                        and N is the number of classes. Q[i, c] is the similarity
+                        of sample i to class c. These rows are treated as points
+                        in an N-dimensional space.
+        y (np.ndarray): An (M,) array of labels, where y[i] is the integer class
+                        label for sample i.
         factor_h (float): A scaled factor from the RBF kernel bandwidth parameter.
-                          This is used to adjust the Silhouette Score.
-        factor_k (int): A scaled factor from the number of nearest neighbors used in
-                        the sparse RBF kernel. This is used to adjust the Silhouette Score.
+        factor_k (float): A scaled factor from the number of nearest neighbors used in
+                        the sparse RBF kernel.
+        classes (np.ndarray | None): The complete list of unique class labels. If provided,
+                                     it's used to define the class space. If None,
+                                     classes are inferred from y.
 
     Returns:
         float: The mean Silhouette Score over all samples. Returns 0.0 if there
@@ -35,26 +41,18 @@ def silhouette(Q: np.ndarray, y: np.ndarray, factor_h: float, factor_k: int) -> 
         ValueError: If the number of unique classes in y is less than 2.
         MemoryError: If the pairwise distance matrix is too large to fit in memory.
     """
-    # --- Input Validation and Edge Cases ---
-    try:
-        Q = np.asanyarray(Q, dtype=np.float64)
-        y = np.asanyarray(y, dtype=int)
-    except (ValueError, TypeError):
-        raise TypeError("Inputs Q and y must be convertible to numpy arrays.")
 
-    if Q.ndim != 2:
-        raise ValueError("Input Q must be a 2D array.")
-    if y.ndim != 1:
-        raise ValueError("Input y must be a 1D array.")
-    if Q.shape[0] != y.shape[0]:
-        raise ValueError("The number of samples in Q and y must be the same.")
+    parcheck(Q, y, factor_h, factor_k, classes)
+    Q, y = get_nparrays(Q, y)
 
     n_samples = Q.shape[0]
-    unique_labels, y_indices = np.unique(y, return_inverse=True)
+    if classes is not None:
+        unique_labels = classes
+        class_to_idx = {label: idx for idx, label in enumerate(classes)}
+        y_indices = np.array([class_to_idx[val] for val in y])
+    else:
+        unique_labels, y_indices = np.unique(y, return_inverse=True)
     n_classes = len(unique_labels)
-
-    if n_samples < 2 or n_classes < 2:
-        return 0.0
 
     # --- Core Calculation ---
     # For performance, compute all pairwise distances at once.
