@@ -3,8 +3,14 @@ from scipy.spatial.distance import pdist, squareform
 
 from paramhandling.paramhandler import parcheck, get_nparrays, get_classes
 
-def silhouette(Q: np.ndarray, y: np.ndarray, factor_h: float, factor_k: float, classes: np.ndarray | None = None
-               ) -> float:
+
+def silhouette(
+    Q: np.ndarray,
+    y: np.ndarray,
+    factor_h: float,
+    factor_k: float,
+    classes: np.ndarray | None = None,
+) -> float:
     """
     Calculates the Silhouette Score of all samples.
 
@@ -95,7 +101,7 @@ def silhouette(Q: np.ndarray, y: np.ndarray, factor_h: float, factor_k: float, c
         b[mask_denom_ne_zero] - a[mask_denom_ne_zero]
     ) / denominator[mask_denom_ne_zero]
 
-    # Not perfect, but good enough to estimate the bandwidth and don't saturate the 
+    # Not perfect, but good enough to estimate the bandwidth and don't saturate the
     # number of nearest neighbors.
     mean_s = np.mean(s)
     std_s = np.std(s)
